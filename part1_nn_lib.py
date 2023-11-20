@@ -607,7 +607,7 @@ class Trainer(object):
                 batch_target = target_dataset[batch_start:batch_end]
 
                 # Perform forward pass through the network
-                output = self.network.forward(batch_input)
+                output = self.network(batch_input)
 
                 # Compute the loss
                 loss = self._loss_layer.forward(output, batch_target)

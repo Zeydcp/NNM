@@ -672,8 +672,8 @@ class Preprocessor(object):
         #######################################################################
 
         # Compute min and max for each feature
-        self.min_val = np.min(data, axis=0)
-        self.max_val = np.max(data, axis=0)
+        self.min_val = np.min(data)
+        self.max_val = np.max(data)
 
         #######################################################################
         #                       ** END OF YOUR CODE **

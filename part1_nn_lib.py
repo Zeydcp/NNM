@@ -673,7 +673,7 @@ class Preprocessor(object):
 
         # Compute mean and standard deviation for each feature
         self.mean_values = np.mean(data, axis=0)
-        self.std_values = np.std(data, axis=0)
+        self.std_values = np.std(data)
 
         #######################################################################
         #                       ** END OF YOUR CODE **

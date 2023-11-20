@@ -671,9 +671,9 @@ class Preprocessor(object):
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        # Compute mean and standard deviation for each feature
-        self.mean_values = np.mean(data, axis=0)
-        self.std_values = np.std(data)
+        # Compute min and max for each feature
+        self.min_val = np.min(data, axis=0)
+        self.max_val = np.max(data, axis=0)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -693,8 +693,9 @@ class Preprocessor(object):
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        # Min-max scaling
-        return (data - self.mean_values) / self.std_values
+        # Perform min-max scaling
+        return (data - self.min_val) / (self.max_val - self.min_val)
+
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -715,7 +716,7 @@ class Preprocessor(object):
         #######################################################################
 
         # Revert min-max scaling
-        return data * self.std_values + self.mean_values
+        return data * (self.max_val - self.min_val) + self.min_value
 
         #######################################################################
         #                       ** END OF YOUR CODE **

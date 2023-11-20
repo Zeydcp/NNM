@@ -249,7 +249,7 @@ class LinearLayer(Layer):
         #                       ** START OF YOUR CODE **
         #######################################################################
         self._W = xavier_init((n_in, n_out))
-        self._b = np.zeros((1, n_out))
+        self._b = xavier_init((1, n_out))
 
         self._cache_current = None
         self._grad_W_current = None
@@ -305,7 +305,7 @@ class LinearLayer(Layer):
         self._grad_W_current = np.matmul(self._cache_current.T, grad_z)
 
         # Compute the gradient of the loss with respect to the bias
-        self._grad_b_current = np.sum(grad_z, axis=0, keepdims=True)
+        self._grad_b_current = np.sum(grad_z, axis=0)
 
         # Compute the gradient of the loss with respect to the input
         return np.matmul(grad_z, self._W.T)
@@ -521,14 +521,15 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        if loss_fun == "mse":
-            self._loss_layer = MSELossLayer()
-        elif loss_fun == "cross_entropy":
-            self._loss_layer = CrossEntropyLossLayer()
-        else:
-            raise ValueError(
-                "Invalid loss function. Supported options: mse, cross_entropy"
-            )
+        match loss_fun:
+            case "mse":
+                self._loss_layer = MSELossLayer()
+            case "cross_entropy":
+                self._loss_layer = CrossEntropyLossLayer()
+            case _:
+                raise ValueError(
+                    "Invalid loss function. Supported options: mse, cross_entropy"
+                )
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -643,10 +644,8 @@ class Trainer(object):
         # Perform forward pass through the network
         output = self.network(input_dataset)
 
-        # Compute the loss using the provided loss layer
-        loss = self._loss_layer.forward(output, target_dataset)
-
-        return loss
+        # Compute and return the loss using the provided loss layer
+        return self._loss_layer.forward(output, target_dataset)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -673,8 +672,8 @@ class Preprocessor(object):
         #######################################################################
 
         # Compute mean and standard deviation for each feature
-        self.mean_values = np.mean(data)
-        self.std_values = np.std(data)
+        self.mean_values = np.mean(data, axis=0)
+        self.std_values = np.std(data, axis=0)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -695,9 +694,7 @@ class Preprocessor(object):
         #######################################################################
 
         # Min-max scaling
-        normalized_data = (data - self.mean_values) / self.std_values
-
-        return normalized_data
+        return (data - self.mean_values) / self.std_values
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -718,9 +715,7 @@ class Preprocessor(object):
         #######################################################################
 
         # Revert min-max scaling
-        reverted_data = data * self.std_values + self.mean_values
-
-        return reverted_data
+        return data * self.std_values + self.mean_values
 
         #######################################################################
         #                       ** END OF YOUR CODE **

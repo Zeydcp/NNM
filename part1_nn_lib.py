@@ -672,8 +672,8 @@ class Preprocessor(object):
         #######################################################################
 
         # Compute min and max for each feature
-        self.min_val = np.min(data)
-        self.max_val = np.max(data)
+        self.min_val = np.min(data, axis=0)
+        self.max_val = np.max(data, axis=0)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -716,7 +716,7 @@ class Preprocessor(object):
         #######################################################################
 
         # Revert min-max scaling
-        return data * (self.max_val - self.min_val) + self.min_value
+        return data * (self.max_val - self.min_val) + self.min_val
 
         #######################################################################
         #                       ** END OF YOUR CODE **

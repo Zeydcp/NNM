@@ -528,7 +528,7 @@ class Trainer(object):
                 self._loss_layer = CrossEntropyLossLayer()
             case _:
                 raise ValueError(
-                    "Invalid loss function. Supported options: mse, cross_entropy"
+                    "Loss function must be: mse, cross_entropy"
                 )
         #######################################################################
         #                       ** END OF YOUR CODE **

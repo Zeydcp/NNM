@@ -190,9 +190,9 @@ class Regressor(torch.nn.Module):
         # Convert data to PyTorch tensor
         X = torch.tensor(X.values, dtype=torch.float32)
 
-        # Forward pass to get predictions
-        with torch.no_grad():
-            predictions = self(X).numpy()
+        # # Forward pass to get predictions
+        # with torch.no_grad():
+        predictions = self(X).detach().numpy()
 
         return predictions
 

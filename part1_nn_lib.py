@@ -527,9 +527,7 @@ class Trainer(object):
             case "cross_entropy":
                 self._loss_layer = CrossEntropyLossLayer()
             case _:
-                raise ValueError(
-                    "Loss function must be: mse, cross_entropy"
-                )
+                raise ValueError("Loss function must be: mse, cross_entropy")
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -695,7 +693,6 @@ class Preprocessor(object):
 
         # Perform min-max scaling
         return (data - self.min_val) / (self.max_val - self.min_val)
-
 
         #######################################################################
         #                       ** END OF YOUR CODE **

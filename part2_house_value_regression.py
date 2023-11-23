@@ -115,8 +115,10 @@ class Regressor(torch.nn.Module):
 
         # Apply normalization to numerical columns in both training and testing data
         x_processed[x_processed.columns] = self.scaler.transform(x_processed)
+        x_processed = torch.tensor(x_processed.values, dtype=torch.float32)
         if y is not None:
             y_processed[y_processed.columns] = self.scaler_y.transform(y_processed)
+            y_processed = torch.tensor(y_processed.values, dtype=torch.float32)
 
         # Return preprocessed x and y
         return x_processed, y_processed
@@ -146,10 +148,6 @@ class Regressor(torch.nn.Module):
 
         # Preprocess the input data
         X, Y = self._preprocessor(x, y, training = True) # Do not forget
-
-        # Convert data to PyTorch tensors
-        X = torch.tensor(X.values, dtype=torch.float32)
-        Y = torch.tensor(Y.values, dtype=torch.float32)
 
         # Define loss function and optimizer
         criterion = torch.nn.MSELoss()
@@ -193,9 +191,6 @@ class Regressor(torch.nn.Module):
         #######################################################################
 
         X, _ = self._preprocessor(x, training = False) # Do not forget
-        
-        # Convert data to PyTorch tensor
-        X = torch.tensor(X.values, dtype=torch.float32)
 
         # Forward pass to get predictions
         with torch.no_grad():
@@ -234,14 +229,8 @@ class Regressor(torch.nn.Module):
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, Y = self._preprocessor(x, y, training = False) # Do not forget
-        
-        
-        # Convert data to PyTorch tensor
-        X = torch.tensor(X.values, dtype=torch.float32)
-        Y = torch.tensor(Y.values, dtype=torch.float32)
+        _, Y = self._preprocessor(x, y, training = False) # Do not forget
 
-        
         Y_pred = self.predict(x)
 
         # Calculate evaluation metrics

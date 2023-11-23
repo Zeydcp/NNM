@@ -42,8 +42,8 @@ class Regressor(torch.nn.Module):
         self.input_size = X.shape[1]
         
         # Neural network layers
-        self.fc1 = torch.nn.Linear(self.input_size, 8)
-        self.fc2 = torch.nn.Linear(8, self.output_size)
+        self.fc1 = torch.nn.Linear(self.input_size, self.output_size)
+        # self.fc2 = torch.nn.Linear(8, self.output_size)
         # self.fc3 = torch.nn.Linear(5, 3)
         # self.fc4 = torch.nn.Linear(3, 2)
         # self.fc5 = torch.nn.Linear(2, 1)
@@ -226,12 +226,12 @@ class Regressor(torch.nn.Module):
         
     def forward(self, x):
         # Define the forward pass with multiple layers
-        x = F.relu(self.fc1(x))
+        x = self.fc1(x)
         # x = F.relu(self.fc2(x))
         # x = F.relu(self.fc3(x))
         # x = F.relu(self.fc4(x))
         # x = F.relu(self.fc5(x))
-        x = self.fc2(x)
+        # x = self.fc2(x)
         return x
 
 

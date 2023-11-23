@@ -32,7 +32,7 @@ class Regressor(torch.nn.Module):
 
 
         # Initialize preprocessing objects
-        self.imputer = SimpleImputer(strategy='constant', fill_value='0')
+        self.numeric_imputer = SimpleImputer(strategy='mean')
         self.label_binarizer = LabelBinarizer()
         self.scaler = StandardScaler()
         self.output_size = 1  # Assuming regression task where output is a single value
@@ -40,9 +40,9 @@ class Regressor(torch.nn.Module):
         self.input_size = X.shape[1]
         
         # Neural network layers
-        self.fc1 = torch.nn.Linear(self.input_size, 64)
-        self.fc2 = torch.nn.Linear(64, 32)
-        self.fc3 = torch.nn.Linear(32, self.output_size)
+        self.fc1 = torch.nn.Linear(self.input_size, self.output_size)
+        # self.fc2 = torch.nn.Linear(13, 13)
+        # self.fc3 = torch.nn.Linear(13, )
         
         # Initialize input and output size based on preprocessed data
         self.nb_epoch = nb_epoch
@@ -77,26 +77,20 @@ class Regressor(torch.nn.Module):
         # Copy the input to avoid modifying the original DataFrame
         x_processed = x.copy()
 
-        #######################################################################
         # Handle Missing Values - Numeric Columns
-        #######################################################################
         numeric_cols = x_processed.select_dtypes(include=['number']).columns
         if training:
             # If training, calculate and store values needed for preprocessing
             # For example, you might want to calculate mean values from the training data
-            self.numeric_imputer = SimpleImputer(strategy='mean')
             self.numeric_imputer.fit(x_processed[numeric_cols])
 
         # Apply the imputer to fill missing values in both training and testing data for numeric columns
         x_processed[numeric_cols] = self.numeric_imputer.transform(x_processed[numeric_cols])
 
-        #######################################################################
         # Handle Textual Values - One-Hot Encoding
-        #######################################################################
         categorical_cols = x_processed.select_dtypes(exclude=['number']).columns
         if training:
             # If training, fit the LabelBinarizer to learn the mapping
-            self.label_binarizer = LabelBinarizer()
             self.label_binarizer.fit(x_processed[categorical_cols])
 
         # Apply one-hot encoding to categorical columns
@@ -109,19 +103,16 @@ class Regressor(torch.nn.Module):
         # Drop the original categorical columns
         x_processed.drop(categorical_cols, axis=1, inplace=True)
 
-        #######################################################################
         # Normalize Numerical Values
-        #######################################################################
         if training:
             # If training, calculate and store values needed for normalization
-            self.scaler = StandardScaler()
             self.scaler.fit(x_processed)
 
         # Apply normalization to numerical columns in both training and testing data
         x_processed[x_processed.columns] = self.scaler.transform(x_processed)
 
         # Return preprocessed x and y, return None for y if it was None
-        return x_processed, (y if isinstance(y, pd.DataFrame) else None)
+        return x_processed, y
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -155,7 +146,7 @@ class Regressor(torch.nn.Module):
 
         # Define loss function and optimizer
         criterion = torch.nn.MSELoss()
-        optimizer = torch.optim.SGD(self.parameters(), lr=0.05)  # You can adjust the learning rate
+        optimizer = torch.optim.SGD(self.parameters(), lr=0.22)  # You can adjust the learning rate
 
         # Training loop
         for epoch in range(self.nb_epoch):
@@ -169,10 +160,6 @@ class Regressor(torch.nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
-            # Print the loss for every 100 epochs (you can adjust this)
-            if (epoch + 1) % 100 == 0:
-                print(f'Epoch [{epoch + 1}/{self.nb_epoch}], Loss: {loss.item()}')
 
         return self
 
@@ -217,8 +204,8 @@ class Regressor(torch.nn.Module):
     def forward(self, x):
         # Define the forward pass with multiple layers
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        # x = F.relu(self.fc2(x))
+        # x = self.fc3(x)
         return x
 
     def score(self, x, y):
@@ -246,16 +233,15 @@ class Regressor(torch.nn.Module):
         X = torch.tensor(X.values, dtype=torch.float32)
         Y = torch.tensor(Y.values, dtype=torch.float32)
 
-        # Forward pass to get predictions
-        with torch.no_grad():
-            Y_pred = self(X).numpy()
+        
+        Y_pred = self.predict(x)
 
         # Calculate evaluation metrics
         mse = mean_squared_error(Y, Y_pred)
         r2 = r2_score(Y, Y_pred)
         
         # Return the evaluation metric of your choice
-        return r2  # You can choose to return a different metric if needed
+        return mse  # You can choose to return a different metric if needed
 
         #######################################################################
         #                       ** END OF YOUR CODE **

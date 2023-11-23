@@ -217,7 +217,7 @@ class Regressor(torch.nn.Module):
         with torch.no_grad():
             predictions = self(X).numpy()
 
-        return predictions
+        return self.scaler_y.inverse_transform(predictions)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -258,7 +258,6 @@ class Regressor(torch.nn.Module):
         Y_pred = self.predict(x)
         
         Y = self.scaler_y.inverse_transform(Y)
-        Y_pred = self.scaler_y.inverse_transform(Y_pred)
 
         # Calculate evaluation metrics
         mse = mean_squared_error(Y, Y_pred, squared=False)

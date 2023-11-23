@@ -151,7 +151,7 @@ class Regressor(torch.nn.Module):
 
         # Define loss function and optimizer
         criterion = torch.nn.MSELoss()
-        optimizer = torch.optim.SGD(self.parameters(), lr=0.3)  # adjustable learning rate
+        optimizer = torch.optim.SGD(self.parameters(), lr=0.08)  # adjustable learning rate
 
         # Training loop
         for epoch in range(self.nb_epoch):
@@ -232,9 +232,12 @@ class Regressor(torch.nn.Module):
         _, Y = self._preprocessor(x, y, training = False) # Do not forget
 
         Y_pred = self.predict(x)
+        
+        Y = self.scaler_y.inverse_transform(Y)
+        Y_pred = self.scaler_y.inverse_transform(Y_pred)
 
         # Calculate evaluation metrics
-        mse = mean_squared_error(Y, Y_pred)
+        mse = mean_squared_error(Y, Y_pred, squared=False)
         r2 = r2_score(Y, Y_pred)
         
         # Return the evaluation metric of your choice

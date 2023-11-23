@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.utils.data import DataLoader, TensorDataset
 import pickle
 import numpy as np
 import pandas as pd
@@ -9,7 +10,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 class Regressor(torch.nn.Module):
 
-    def __init__(self, x, nb_epoch = 1000):
+    def __init__(self, x, nb_epoch = 100):
         # You can add any input parameters you need
         # Remember to set them with a default value for LabTS tests
         """ 
@@ -159,18 +160,32 @@ class Regressor(torch.nn.Module):
         criterion = torch.nn.MSELoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=0.12)  # adjustable learning rate
 
+        # Assuming X and Y are tensors or numpy arrays
+        dataset = TensorDataset(X, Y)
+
         # Training loop
         for epoch in range(self.nb_epoch):
-            # Forward pass
-            outputs = self(X)
+            # Set a new random seed for each epoch
+            torch.manual_seed(epoch)
 
-            # Compute the loss
-            loss = criterion(outputs, Y)
+            # Shuffle the dataset with the current epoch as the seed
+            indices = torch.randperm(len(dataset))
 
-            # Backward pass and optimization
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            shuffled_dataset = TensorDataset(X[indices], Y[indices])
+
+            # Iterate over batches
+            for batch_X, batch_Y in DataLoader(shuffled_dataset, batch_size=128):
+                
+                # Forward pass
+                outputs = self(batch_X)
+
+                # Compute the loss
+                loss = criterion(outputs, batch_Y)
+
+                # Backward pass and optimization
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
         return self
 
@@ -218,6 +233,7 @@ class Regressor(torch.nn.Module):
         # x = F.relu(self.fc5(x))
         x = self.fc2(x)
         return x
+
 
     def score(self, x, y):
         """

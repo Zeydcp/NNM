@@ -322,7 +322,7 @@ def RegressorHyperParameterSearch(data):
 
         if new_error < old_error:
             old_error = new_error
-            op_lr = i / 1000
+            op_lr = i / 100
 
     return op_lr  # Return the chosen hyper parameters
 
